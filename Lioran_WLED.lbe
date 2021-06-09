@@ -1,0 +1,37 @@
+[extension_name]
+Change WLED State
+[insert_external]
+<div><p>Change a WLED State</div></p>
+[insert_command]
+//Turn a WLED Index ID On or Off
+lioranboardclient.send('{"type":"MESSAGE","topic":"ExtensionCommand","name":"Change WLED State","boxcount":3,"boxname1":"url","boxtype1":"string","boxname2":"index_id","boxtype2":"real","boxname3":"wledstate|ON|OFF|","boxtype3":"string"}');
+
+[insert_hook]
+case "ChangeWLEDState":{
+	LBChangeWLEDState(LioranBoardJSON.url,LioranBoardJSON.index_id,LioranBoardJSON.wledstate)
+}break
+
+[insert_script]
+function LBChangeWLEDState(url,index_id,wledstate){
+	var WLEDState={};
+	WLEDState.on=true;
+	WLEDState.bri=255;
+	WLEDState.mainseg=0;
+	// WLEDState.seg={};
+	// WLEDState.seg.id=index_id;
+	if (wledstate == "ON") {
+		WLEDState.seg=[{"id":index_id,"on":true}]
+	} else {
+		WLEDState.seg=[{"id":index_id,"on":false}]
+	}
+
+	WLEDState=JSON.stringify(WLEDState)
+	var LBChangeWLEDState = new XMLHttpRequest();
+	LBChangeWLEDState.open("POST", url);
+	LBChangeWLEDState.setRequestHeader("Content-Type", "application/json");
+	LBChangeWLEDState.send(WLEDState);
+	lioranboardclient.send('{"type":"MESSAGE","topic":"AlertMessage","message":"WLED State Changed"}')
+	return 1;
+}
+
+[insert_over]
